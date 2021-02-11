@@ -1,0 +1,62 @@
+from datetime import date
+import json
+
+
+# Implementujte podprogram ‹coldest_day›, který najde nejchladnější
+# den pro město ‹city› v předpovědi počasí uložené v souboru ‹path›
+# ve formátu JSON. Data předpovědi jsou získaná ze serveru
+# ‹openweathermap.org›. Soubor obsahuje několik záznamů počasí pro
+# různá města: jméno města naleznete v atributu ‹name› objektu
+# ‹city›. Můžete předpokládat, že hledaný záznam se v souboru
+# nachází.
+#
+# Dále nás ze záznamu bude zajímat samotná předpověď počasí pro
+# jednotlivé dny. Ta se nachází v seznamu ‹list›, kterého každý
+# prvek obsahuje atributy:
+#
+#  • ‹dt› je datum ve formátu „unix time stamp“, tzn. v počtu vteřin
+#    od půlnoci 1.1.1970 v zóně UTC (pro konverzi do typu ‹date›
+#    naleznete v knihovně ‹datetime› vhodnou funkci),
+#  • seznam ‹temp› obsahuje naměřené teploty, konkrétně atribut
+#    ‹min› obsahuje tu nejnižší z daného dne.
+#
+# Relevantní část jednoho záznamu na vstupu vypadá takto (vstup jako
+# celek je seznam takových záznamů, a každý záznam obsahuje řadu
+# dalších informací):
+#
+#     { "city": { "name": "Brno" },
+#       "list": [ { "dt": 1605693600, "temp": { "min": 5.23 } },
+#                 { "dt": 1605780000, "temp": { "min": 4.81 } } ] }
+#
+# V tomto úkolu máte povoleno použít knihovny ‹datetime› a ‹json›.
+
+def coldest_day(path: str, city: str) -> date:
+    with open(path, 'r') as file:
+        stock = json.load(file)
+        for every in stock:
+            len_list = len(every["list"])
+            cityname = every["city"]['name']
+            if cityname == city:
+                mintemp = every["list"][0]["temp"]['min']
+                time = every["list"][0]["dt"]
+                for i in range(len_list):
+                    if every["list"][i]["temp"]['min'] < mintemp:
+                        mintemp = every["list"][i]["temp"]['min']
+                        time = every["list"][i]["dt"]
+    return date.fromtimestamp(time)
+
+
+def main() -> None:
+    check_coldest("Brno", 2020, 11, 22)
+    check_coldest("Praha", 2020, 11, 21)
+    check_coldest("Bratislava", 2020, 11, 18)
+    check_coldest("London", 2020, 11, 30)
+    check_coldest("Paris", 2020, 11, 21)
+
+
+def check_coldest(city: str, year: int, month: int, day: int) -> None:
+    assert coldest_day("dat.weather.json", city) == date(year, month, day)
+
+
+if __name__ == "__main__":
+    main()
